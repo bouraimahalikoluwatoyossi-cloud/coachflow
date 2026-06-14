@@ -739,7 +739,6 @@
         document.getElementById('session-notes').value = '';
 
         loadSessions();
-        const user = await Parse.User.currentAsync();
         loadSessionsCount(user);
       } catch(e) {
         msg.className = 'msg error';
