@@ -519,7 +519,7 @@
         const client = new Client();
         client.set('name', name);
         client.set('email', email);
-        client.set('phone', phone);
+        client.set('telephone', phone);
         client.set('coachId', user.id);
         await client.save();
 
@@ -562,7 +562,7 @@
           card.innerHTML = `
             <div class="info">
               <h4>${escapeHtml(c.get('name') || '')}</h4>
-              <p>${escapeHtml(c.get('email') || '')}${c.get('phone') ? ' • ' + escapeHtml(c.get('phone')) : ''}</p>
+              <p>${escapeHtml(c.get('email') || '')}${c.get('telephone') ? ' • ' + escapeHtml(c.get('telephone')) : ''}</p>
             </div>
             <button class="btn-delete" onclick="deleteClient('${c.id}')">Remove</button>
           `;
