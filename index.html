@@ -861,6 +861,8 @@
       pendingPlan = plan;
       document.getElementById('manual-confirm-btn').style.display = 'block';
 
+      attachKkiapayListeners();
+
       openKkiapayWidget({
         amount: amount,
         key: "0d6711208d9411f0b9f45f62cefada29",
@@ -874,21 +876,27 @@
 
     function attachKkiapayListeners() {
       if (listenersAttached) return;
-      listenersAttached = true;
-
-      addSuccessListener(async (response) => {
-        if (pendingPlan) {
-          await activatePlan(pendingPlan);
-          pendingPlan = null;
+      try {
+        if (typeof addSuccessListener === 'function') {
+          addSuccessListener(async (response) => {
+            if (pendingPlan) {
+              await activatePlan(pendingPlan);
+              pendingPlan = null;
+            }
+          });
         }
-      });
-
-      addFailedListener((error) => {
-        const msg = document.getElementById('pricing-msg');
-        msg.className = 'msg error';
-        msg.textContent = 'Payment failed or cancelled. Please try again.';
-        pendingPlan = null;
-      });
+        if (typeof addFailedListener === 'function') {
+          addFailedListener((error) => {
+            const msg = document.getElementById('pricing-msg');
+            msg.className = 'msg error';
+            msg.textContent = 'Payment failed or cancelled. Please try again.';
+            pendingPlan = null;
+          });
+        }
+        listenersAttached = true;
+      } catch(e) {
+        // Kkiapay script not ready yet, will retry on next click
+      }
     }
 
     function manualActivate() {
