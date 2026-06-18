@@ -143,27 +143,31 @@
     .topbar {
       background: #111811;
       border-bottom: 1px solid #1e3a1e;
-      padding: 16px 24px;
+      padding: 14px 16px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
     }
 
     .topbar h2 {
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 700;
       color: #22c55e;
+      white-space: nowrap;
     }
 
     .btn-logout {
-      padding: 8px 16px;
+      padding: 7px 12px;
       background: transparent;
       border: 1px solid #1e3a1e;
       color: #9ca3af;
       border-radius: 8px;
-      font-size: 13px;
+      font-size: 12px;
       cursor: pointer;
       transition: all 0.2s;
+      white-space: nowrap;
     }
 
     .btn-logout:hover { border-color: #f87171; color: #f87171; }
@@ -509,21 +513,24 @@
     .plan-indicator {
       display: flex;
       align-items: center;
-      gap: 8px;
-      padding: 6px 12px;
+      gap: 6px;
+      padding: 5px 10px;
       background: #1e3a1e;
       border-radius: 8px;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 700;
       color: #22c55e;
       cursor: pointer;
       border: 1px solid #22c55e;
+      white-space: nowrap;
     }
 
     .topbar-right {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
     }
 
     .limit-banner {
@@ -986,8 +993,8 @@
 
       openKkiapayWidget({
         amount: amount,
-        key: "0d6711208d9411f0b9f45f62cefada29",
-        sandbox: true,
+        key: "4cac652aa621bd9d4be158a42a68a837330182dd",
+        sandbox: false,
         data: plan
       });
     }
@@ -1203,11 +1210,24 @@
 
     async function deleteClient(id) {
       try {
+        // First, delete all sessions linked to this client
+        const Session = Parse.Object.extend('Sessions');
+        const sessionQuery = new Parse.Query(Session);
+        sessionQuery.equalTo('clientId', id);
+        const linkedSessions = await sessionQuery.find();
+        if (linkedSessions.length > 0) {
+          await Parse.Object.destroyAll(linkedSessions);
+        }
+
+        // Then delete the client itself
         const Client = Parse.Object.extend('Clients');
         const client = new Client();
         client.id = id;
         await client.destroy();
+
         loadClients();
+        const user = await Parse.User.currentAsync();
+        loadSessionsCount(user);
       } catch(e) {
         alert('Error deleting client: ' + (e.message || ''));
       }
