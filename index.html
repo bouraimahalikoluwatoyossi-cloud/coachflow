@@ -889,10 +889,20 @@
         user.set('email', email);
         user.set('password', pass);
         user.set('name', name);
+
+        // Free 14-day trial on the Business plan for new coaches
+        const trialStart = new Date();
+        const trialEnd = new Date();
+        trialEnd.setDate(trialEnd.getDate() + 14);
+        user.set('plan', 'business');
+        user.set('planStartDate', trialStart);
+        user.set('planEndDate', trialEnd);
+        user.set('isTrial', true);
+
         await user.signUp();
         msg.className = 'msg success';
-        msg.textContent = 'Account created!';
-        goToPricing(false);
+        msg.textContent = 'Account created! Enjoy your 14-day free trial.';
+        loadDashboard(user);
       } catch(e) {
         msg.className = 'msg error';
         msg.textContent = e.message || 'Sign up failed.';
@@ -940,18 +950,20 @@
       currentPlan = plan;
       showPage('dashboard-page');
       updatePlanIndicator(plan, planEndDate);
-      showExpiryWarning(planEndDate);
+      showExpiryWarning(planEndDate, user.get('isTrial'));
       loadClients();
       loadSessionsCount(user);
     }
 
-    function showExpiryWarning(planEndDate) {
+    function showExpiryWarning(planEndDate, isTrial) {
       const container = document.getElementById('expiry-banner-container');
       if (!planEndDate) { container.innerHTML = ''; return; }
 
       const daysLeft = Math.ceil((new Date(planEndDate) - new Date()) / (1000 * 60 * 60 * 24));
 
-      if (daysLeft <= 5 && daysLeft >= 0) {
+      if (isTrial && daysLeft >= 0) {
+        container.innerHTML = `<div class="expiry-banner">✨ You're on a free 14-day Business trial — ${daysLeft} day${daysLeft === 1 ? '' : 's'} left. <a href="#" onclick="showPage('pricing-page'); return false;" style="color:#22c55e;">Choose a plan</a> to keep your access after the trial.</div>`;
+      } else if (daysLeft <= 5 && daysLeft >= 0) {
         container.innerHTML = `<div class="expiry-banner">⚠️ Your plan expires in ${daysLeft} day${daysLeft === 1 ? '' : 's'}. <a href="#" onclick="showPage('pricing-page'); return false;" style="color:#22c55e;">Renew now</a> to avoid losing access.</div>`;
       } else {
         container.innerHTML = '';
@@ -1038,6 +1050,7 @@
         user.set('plan', plan);
         user.set('planStartDate', startDate);
         user.set('planEndDate', endDate);
+        user.set('isTrial', false);
         await user.save();
 
         msg.className = 'msg success';
