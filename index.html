@@ -647,6 +647,196 @@
       font-size: 13px;
       margin-bottom: 16px;
     }
+
+    /* ── WORKOUT PROGRAMS ── */
+    .exercise-row {
+      background: #0a0f0a;
+      border: 1px solid #1e3a1e;
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 10px;
+    }
+
+    .exercise-row .ex-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .exercise-row input {
+      width: 100%;
+      padding: 9px 10px;
+      background: #111811;
+      border: 1px solid #1e3a1e;
+      border-radius: 8px;
+      color: #f0f0f0;
+      font-size: 12px;
+      outline: none;
+    }
+
+    .exercise-row input:focus { border-color: #22c55e; }
+
+    .exercise-row .ex-notes {
+      width: 100%;
+      margin-bottom: 8px;
+    }
+
+    .btn-remove-ex {
+      background: transparent;
+      border: 1px solid #1e3a1e;
+      color: #f87171;
+      border-radius: 6px;
+      padding: 5px 10px;
+      font-size: 11px;
+      cursor: pointer;
+    }
+
+    .btn-secondary {
+      width: 100%;
+      padding: 11px;
+      background: transparent;
+      border: 1px dashed #22c55e;
+      color: #22c55e;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+
+    .btn-secondary:hover { background: #1e3a1e; }
+
+    .program-card {
+      background: #111811;
+      border: 1px solid #1e3a1e;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 10px;
+    }
+
+    .program-card .program-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .program-card .program-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #22c55e;
+    }
+
+    .program-card .program-date {
+      font-size: 11px;
+      color: #6b7280;
+    }
+
+    .program-exercise {
+      font-size: 13px;
+      color: #d1d5db;
+      padding: 6px 0;
+      border-bottom: 1px solid #1e3a1e;
+    }
+
+    .program-exercise:last-child { border-bottom: none; }
+
+    .program-exercise .ex-name {
+      font-weight: 600;
+      color: #f0f0f0;
+    }
+
+    .program-exercise .ex-detail {
+      font-size: 12px;
+      color: #6b7280;
+      margin-top: 2px;
+    }
+
+    .btn-small {
+      padding: 6px 12px;
+      background: transparent;
+      border: 1px solid #1e3a1e;
+      color: #9ca3af;
+      border-radius: 8px;
+      font-size: 11px;
+      cursor: pointer;
+    }
+
+    .btn-small:hover { border-color: #22c55e; color: #22c55e; }
+
+    .status-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      margin-left: 8px;
+    }
+
+    .status-badge.active {
+      background: #1e3a1e;
+      color: #22c55e;
+    }
+
+    .status-badge.inactive {
+      background: #92400e;
+      color: #fbbf24;
+    }
+
+    .session-card.completed {
+      opacity: 0.6;
+    }
+
+    .session-card .session-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .btn-complete {
+      padding: 6px 12px;
+      background: transparent;
+      border: 1px solid #22c55e;
+      color: #22c55e;
+      border-radius: 8px;
+      font-size: 11px;
+      cursor: pointer;
+    }
+
+    .btn-complete.done {
+      background: #22c55e;
+      color: #000;
+    }
+
+    .editable-result {
+      width: 100%;
+      min-height: 180px;
+      background: #0a0f0a;
+      border: 1px solid #1e3a1e;
+      border-radius: 10px;
+      padding: 14px;
+      color: #d1d5db;
+      font-size: 13px;
+      line-height: 1.6;
+      font-family: inherit;
+      resize: vertical;
+      outline: none;
+      margin-top: 12px;
+      display: none;
+    }
+
+    .editable-result.visible { display: block; }
+
+    .ai-result-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+      display: none;
+    }
+
+    .ai-result-actions.visible { display: flex; }
+
+    .ai-result-actions button { flex: 1; }
   </style>
 </head>
 <body>
@@ -826,8 +1016,8 @@
       <button class="btn-back" onclick="showPage('dashboard-page')">← Back to Clients</button>
 
       <div class="welcome-card" style="margin-top:16px;">
-        <h3 id="detail-client-name">Client</h3>
-        <p>Manage sessions for this client.</p>
+        <h3 id="detail-client-name">Client<span id="detail-status-badge"></span></h3>
+        <p>Manage sessions and programs for this client.</p>
       </div>
 
       <div class="section-header">
@@ -852,7 +1042,28 @@
         <div class="empty-state">Loading sessions...</div>
       </div>
 
+      <div class="section-header">
+        <p class="section-title" style="margin-bottom:0;">Workout Programs</p>
+        <button class="btn-add" onclick="toggleProgramForm()">+ New Program</button>
+      </div>
+
+      <div class="client-form" id="program-form">
+        <div class="form-group">
+          <label>Program Title</label>
+          <input type="text" id="program-title" placeholder="e.g. Week 1 - Upper Body" />
+        </div>
+        <div id="exercise-rows"></div>
+        <button class="btn-secondary" onclick="addExerciseRow()">+ Add Exercise</button>
+        <button class="btn-primary" onclick="saveManualProgram()">Save Program</button>
+        <p class="msg" id="program-msg"></p>
+      </div>
+
       <div id="ai-features-container"></div>
+
+      <p class="section-title" style="margin-top:20px;">Program History</p>
+      <div class="client-list" id="program-history-list">
+        <div class="empty-state">Loading programs...</div>
+      </div>
     </div>
   </div>
 
@@ -1288,14 +1499,27 @@
     let currentClientId = null;
     let currentClientName = null;
 
-    function openClientDetail(clientId, clientName) {
+    async function openClientDetail(clientId, clientName) {
       currentClientId = clientId;
       currentClientName = clientName;
-      document.getElementById('detail-client-name').textContent = clientName;
+      document.getElementById('detail-client-name').innerHTML = escapeHtml(clientName) + '<span id="detail-status-badge"></span>';
       document.getElementById('session-form').classList.remove('open');
+      document.getElementById('program-form').classList.remove('open');
       showPage('client-detail-page');
       loadSessions();
       renderAiFeatures();
+      loadProgramHistory();
+      updateClientStatusBadge();
+    }
+
+    async function updateClientStatusBadge() {
+      const badgeEl = document.getElementById('detail-status-badge');
+      const days = await getDaysSinceLastSession(currentClientId);
+      if (days !== null && days >= 14) {
+        badgeEl.innerHTML = `<span class="status-badge inactive">Inactive ${days}d</span>`;
+      } else {
+        badgeEl.innerHTML = `<span class="status-badge active">Active</span>`;
+      }
     }
 
     function renderAiFeatures() {
@@ -1311,6 +1535,11 @@
             <button class="btn-ai" id="btn-gen-message" onclick="generateMotivationalMessage()">Generate Motivational Message</button>
             <button class="btn-ai" id="btn-gen-reengage" onclick="checkAndGenerateReengagement()">Generate Re-engagement Message</button>
             <div class="ai-result" id="ai-result"></div>
+            <textarea class="editable-result" id="ai-result-editable"></textarea>
+            <div class="ai-result-actions" id="ai-result-actions">
+              <button class="btn-primary" onclick="saveAiResultToClient()" style="margin-top:0;">Save to Client</button>
+              <button class="btn-small" onclick="discardAiResult()">Discard</button>
+            </div>
           </div>
         `;
       } else {
@@ -1320,6 +1549,200 @@
             <a href="#" onclick="showPage('pricing-page'); return false;">Upgrade to Business</a>
           </div>
         `;
+      }
+    }
+
+    let lastAiResultType = null;
+
+    function showEditableAiResult(text, type) {
+      lastAiResultType = type;
+      const editable = document.getElementById('ai-result-editable');
+      const actions = document.getElementById('ai-result-actions');
+      editable.value = text;
+      editable.classList.add('visible');
+      actions.classList.add('visible');
+    }
+
+    function discardAiResult() {
+      document.getElementById('ai-result-editable').classList.remove('visible');
+      document.getElementById('ai-result-actions').classList.remove('visible');
+      document.getElementById('ai-result').classList.remove('visible');
+    }
+
+    async function saveAiResultToClient() {
+      const text = document.getElementById('ai-result-editable').value.trim();
+      if (!text) return;
+
+      try {
+        const WorkoutPlan = Parse.Object.extend('WorkoutPlans');
+        const plan = new WorkoutPlan();
+        plan.set('clientId', currentClientId);
+        plan.set('content', text);
+        plan.set('type', lastAiResultType || 'message');
+        plan.set('title', lastAiResultType === 'workout' ? 'AI Workout Plan' : (lastAiResultType === 'reengagement' ? 'Re-engagement Message' : 'Motivational Message'));
+        await plan.save();
+
+        discardAiResult();
+        document.getElementById('ai-result').classList.remove('visible');
+        loadProgramHistory();
+        alert('Saved! Your client can now see this in their portal.');
+      } catch(e) {
+        alert('Error saving: ' + (e.message || ''));
+      }
+    }
+
+    // ── MANUAL PROGRAM CREATION ──
+    let exerciseRowCount = 0;
+
+    function toggleProgramForm() {
+      const form = document.getElementById('program-form');
+      form.classList.toggle('open');
+      if (form.classList.contains('open') && document.getElementById('exercise-rows').children.length === 0) {
+        addExerciseRow();
+      }
+    }
+
+    function addExerciseRow() {
+      exerciseRowCount++;
+      const id = exerciseRowCount;
+      const container = document.getElementById('exercise-rows');
+      const row = document.createElement('div');
+      row.className = 'exercise-row';
+      row.id = 'ex-row-' + id;
+      row.innerHTML = `
+        <div class="ex-grid">
+          <input type="text" placeholder="Exercise name" id="ex-name-${id}" />
+          <input type="text" placeholder="Sets" id="ex-sets-${id}" />
+          <input type="text" placeholder="Reps" id="ex-reps-${id}" />
+          <input type="text" placeholder="Rest" id="ex-rest-${id}" />
+        </div>
+        <input type="text" class="ex-notes" placeholder="Notes (optional)" id="ex-notes-${id}" />
+        <button class="btn-remove-ex" onclick="document.getElementById('ex-row-${id}').remove()">Remove Exercise</button>
+      `;
+      container.appendChild(row);
+    }
+
+    async function saveManualProgram() {
+      const title = document.getElementById('program-title').value.trim();
+      const msg = document.getElementById('program-msg');
+
+      if (!title) {
+        msg.className = 'msg error';
+        msg.textContent = 'Program title is required.';
+        return;
+      }
+
+      const rows = document.querySelectorAll('#exercise-rows .exercise-row');
+      const exercises = [];
+      rows.forEach(row => {
+        const id = row.id.replace('ex-row-', '');
+        const name = document.getElementById('ex-name-' + id)?.value.trim();
+        if (!name) return;
+        exercises.push({
+          name: name,
+          sets: document.getElementById('ex-sets-' + id)?.value.trim() || '',
+          reps: document.getElementById('ex-reps-' + id)?.value.trim() || '',
+          rest: document.getElementById('ex-rest-' + id)?.value.trim() || '',
+          notes: document.getElementById('ex-notes-' + id)?.value.trim() || ''
+        });
+      });
+
+      if (exercises.length === 0) {
+        msg.className = 'msg error';
+        msg.textContent = 'Add at least one exercise.';
+        return;
+      }
+
+      msg.className = 'msg';
+      msg.textContent = 'Saving...';
+
+      try {
+        const WorkoutPlan = Parse.Object.extend('WorkoutPlans');
+        const plan = new WorkoutPlan();
+        plan.set('clientId', currentClientId);
+        plan.set('title', title);
+        plan.set('type', 'manual');
+        plan.set('exercises', exercises);
+        await plan.save();
+
+        msg.className = 'msg success';
+        msg.textContent = 'Program saved!';
+
+        document.getElementById('program-title').value = '';
+        document.getElementById('exercise-rows').innerHTML = '';
+        exerciseRowCount = 0;
+
+        loadProgramHistory();
+      } catch(e) {
+        msg.className = 'msg error';
+        msg.textContent = e.message || 'Failed to save program.';
+      }
+    }
+
+    async function loadProgramHistory() {
+      const listEl = document.getElementById('program-history-list');
+      try {
+        const WorkoutPlan = Parse.Object.extend('WorkoutPlans');
+        const query = new Parse.Query(WorkoutPlan);
+        query.equalTo('clientId', currentClientId);
+        query.descending('createdAt');
+        const results = await query.find();
+
+        if (results.length === 0) {
+          listEl.innerHTML = '<div class="empty-state">No programs yet.</div>';
+          return;
+        }
+
+        listEl.innerHTML = '';
+        results.forEach(p => {
+          listEl.appendChild(renderProgramCard(p, false));
+        });
+      } catch(e) {
+        listEl.innerHTML = '<div class="empty-state">Error loading programs.</div>';
+      }
+    }
+
+    function renderProgramCard(p, isClientView) {
+      const card = document.createElement('div');
+      card.className = 'program-card';
+      const d = p.get('createdAt');
+      const dateStr = d ? new Date(d).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : '';
+      const title = p.get('title') || 'Workout Plan';
+      const type = p.get('type') || 'ai';
+
+      let bodyHtml = '';
+      if (type === 'manual') {
+        const exercises = p.get('exercises') || [];
+        bodyHtml = exercises.map(ex => `
+          <div class="program-exercise">
+            <div class="ex-name">${escapeHtml(ex.name || '')}</div>
+            <div class="ex-detail">${escapeHtml(ex.sets || '-')} sets × ${escapeHtml(ex.reps || '-')} reps · Rest: ${escapeHtml(ex.rest || '-')}${ex.notes ? ' · ' + escapeHtml(ex.notes) : ''}</div>
+          </div>
+        `).join('');
+      } else {
+        bodyHtml = `<div class="program-exercise" style="white-space:pre-wrap;">${escapeHtml(p.get('content') || '')}</div>`;
+      }
+
+      card.innerHTML = `
+        <div class="program-header">
+          <span class="program-title">${escapeHtml(title)}</span>
+          <span class="program-date">${escapeHtml(dateStr)}</span>
+        </div>
+        ${bodyHtml}
+        ${!isClientView ? `<button class="btn-small" style="margin-top:10px;" onclick="deleteProgram('${p.id}')">Delete</button>` : ''}
+      `;
+      return card;
+    }
+
+    async function deleteProgram(id) {
+      try {
+        const WorkoutPlan = Parse.Object.extend('WorkoutPlans');
+        const plan = new WorkoutPlan();
+        plan.id = id;
+        await plan.destroy();
+        loadProgramHistory();
+      } catch(e) {
+        alert('Error deleting program: ' + (e.message || ''));
       }
     }
 
@@ -1389,6 +1812,7 @@
     async function generateWorkoutPlan() {
       const btn = document.getElementById('btn-gen-workout');
       const resultEl = document.getElementById('ai-result');
+      discardAiResult();
       btn.disabled = true;
       btn.textContent = 'Generating...';
       resultEl.classList.add('visible');
@@ -1397,18 +1821,8 @@
       try {
         const prompt = `You are a professional fitness coach assistant. Create a concise, practical one-week workout plan for a client named ${currentClientName}. Include exercises, sets, and reps for each day. Keep it well-organized and easy to read in plain text (no markdown symbols).`;
         const result = await callGemini(prompt);
-        resultEl.textContent = result;
-
-        // Save the workout plan so the client can see it in their portal
-        try {
-          const WorkoutPlan = Parse.Object.extend('WorkoutPlans');
-          const plan = new WorkoutPlan();
-          plan.set('clientId', currentClientId);
-          plan.set('content', result);
-          await plan.save();
-        } catch(saveErr) {
-          // Non-blocking: the coach still sees the result even if saving fails
-        }
+        resultEl.classList.remove('visible');
+        showEditableAiResult(result, 'workout');
       } catch(e) {
         resultEl.textContent = 'Error generating workout plan: ' + (e.message || 'Unknown error');
       } finally {
@@ -1420,6 +1834,7 @@
     async function generateMotivationalMessage() {
       const btn = document.getElementById('btn-gen-message');
       const resultEl = document.getElementById('ai-result');
+      discardAiResult();
       btn.disabled = true;
       btn.textContent = 'Generating...';
       resultEl.classList.add('visible');
@@ -1428,7 +1843,8 @@
       try {
         const prompt = `You are a friendly fitness coach. Write a short, warm, motivational message (2-3 sentences) to send to a client named ${currentClientName} to encourage them in their fitness journey. Keep it personal and natural, no markdown symbols.`;
         const result = await callGemini(prompt);
-        resultEl.textContent = result;
+        resultEl.classList.remove('visible');
+        showEditableAiResult(result, 'motivation');
       } catch(e) {
         resultEl.textContent = 'Error generating message: ' + (e.message || 'Unknown error');
       } finally {
@@ -1439,6 +1855,7 @@
 
     async function generateReengagementMessage(clientName, daysSinceLastSession, resultElId, btnEl) {
       const resultEl = document.getElementById(resultElId);
+      discardAiResult();
       if (btnEl) { btnEl.disabled = true; btnEl.textContent = 'Generating...'; }
       resultEl.classList.add('visible');
       resultEl.textContent = 'Generating re-engagement message, please wait...';
@@ -1446,7 +1863,8 @@
       try {
         const prompt = `You are a friendly fitness coach. A client named ${clientName} has not had a training session in ${daysSinceLastSession} days. Write a short, warm re-engagement message (2-3 sentences) to check in on them and invite them back, without sounding pushy. No markdown symbols.`;
         const result = await callGemini(prompt);
-        resultEl.textContent = result;
+        resultEl.classList.remove('visible');
+        showEditableAiResult(result, 'reengagement');
       } catch(e) {
         resultEl.textContent = 'Error generating message: ' + (e.message || 'Unknown error');
       } finally {
@@ -1514,11 +1932,12 @@
         results.forEach(s => {
           const d = s.get('date');
           const dateStr = d ? new Date(d).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : 'No date';
+          const completed = s.get('completed');
           const card = document.createElement('div');
-          card.className = 'session-card';
+          card.className = 'session-card' + (completed ? ' completed' : '');
           card.innerHTML = `
             <div class="info">
-              <div class="date">${escapeHtml(dateStr)}</div>
+              <div class="date">${escapeHtml(dateStr)}${completed ? ' <span class="status-badge active">Completed</span>' : ''}</div>
               <div class="notes">${escapeHtml(s.get('notes') || '')}</div>
             </div>
             <button class="btn-delete" onclick="deleteSession('${s.id}')">Remove</button>
@@ -1634,18 +2053,33 @@
         results.forEach(s => {
           const d = s.get('date');
           const dateStr = d ? new Date(d).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : 'No date';
+          const completed = s.get('completed');
           const card = document.createElement('div');
-          card.className = 'session-card';
+          card.className = 'session-card' + (completed ? ' completed' : '');
           card.innerHTML = `
             <div class="info">
               <div class="date">${escapeHtml(dateStr)}</div>
               <div class="notes">${escapeHtml(s.get('notes') || '')}</div>
             </div>
+            <button class="btn-complete ${completed ? 'done' : ''}" onclick="toggleSessionCompleted('${s.id}', ${!completed})">${completed ? '✓ Completed' : 'Mark as completed'}</button>
           `;
           listEl.appendChild(card);
         });
       } catch(e) {
         listEl.innerHTML = '<div class="empty-state">Error loading sessions.</div>';
+      }
+    }
+
+    async function toggleSessionCompleted(sessionId, newStatus) {
+      try {
+        const Session = Parse.Object.extend('Sessions');
+        const session = new Session();
+        session.id = sessionId;
+        session.set('completed', newStatus);
+        await session.save();
+        loadClientSessions();
+      } catch(e) {
+        alert('Error updating session: ' + (e.message || ''));
       }
     }
 
@@ -1665,11 +2099,7 @@
 
         listEl.innerHTML = '';
         results.forEach(w => {
-          const card = document.createElement('div');
-          card.className = 'ai-result visible';
-          card.style.marginBottom = '12px';
-          card.textContent = w.get('content') || '';
-          listEl.appendChild(card);
+          listEl.appendChild(renderProgramCard(w, true));
         });
       } catch(e) {
         listEl.innerHTML = '<div class="empty-state">No workout plans yet.</div>';
